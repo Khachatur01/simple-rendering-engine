@@ -108,7 +108,7 @@ export class RenderingEngine {
   }
 
   private static lineFromVector(point1: Vector3D, point2: Vector3D, angle: number, length: number): Vector3D {
-
+    return { x: 0, y: 0, z: 0 }; /* @TODO */
   }
 
   private static project3DPolygons(display: Display, polygons3D: Polygon3D[]): Polygon2D[] {
