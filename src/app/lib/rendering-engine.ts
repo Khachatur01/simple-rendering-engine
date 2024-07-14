@@ -26,9 +26,10 @@ export class RenderingEngine {
     this.context = context;
 
     this.display = {
-      focusPoint: { x: 0, y: 0, z: 0 },
-      center: { x: 0, y: 0, z: 50 },
-      horizontalPlaneAngle: 0,
+      focalLength: 50,
+      center: { x: 0, y: 0, z: 0 },
+      horizontalPlaneYAngle: 15,
+      horizontalPlaneZAngle: 0,
       width: this.canvas.width,
       height: this.canvas.height,
     }
@@ -80,7 +81,7 @@ export class RenderingEngine {
     );
   }
 
-  private static coefficientsOfPlaneEquation(A: Vector3D, B: Vector3D, C: Vector3D): Coefficients3D {
+  private static coefficientsOfPlaneThrough3Points(A: Vector3D, B: Vector3D, C: Vector3D): Coefficients3D {
     const BA: Vector3D = { x: B.x - A.x, y: B.y - A.y, z: B.z - A.z };
     const CA: Vector3D = { x: C.x - A.x, y: C.y - A.y, z: C.z - A.z };
 
@@ -92,7 +93,20 @@ export class RenderingEngine {
     return { a, b, c, d };
   }
 
-  private static coefficientsOfLineEquation(A: Vector3D, B: Vector3D): Coefficients2D {
+  private static coefficientsOfPlane(normalVector: Vector3D, { x, y, z }: Vector3D): Coefficients3D {
+    const a: number = normalVector.x;
+    const b: number = normalVector.y;
+    const c: number = normalVector.z;
+
+    return {
+      a: a,
+      b: b,
+      c: c,
+      d: a*x + b*y + c*z,
+    };
+  }
+
+  private static coefficientsOfLineThrough2Points(A: Vector3D, B: Vector3D): Coefficients2D {
     const a: number = A.y - B.y;
     const b: number = B.x - A.x;
     const c: number = A.x * B.y - B.x * A.y;
@@ -107,18 +121,37 @@ export class RenderingEngine {
     return numerator / denominator;
   }
 
-  private static lineFromVector(point1: Vector3D, point2: Vector3D, angle: number, length: number): Vector3D {
-    return { x: 0, y: 0, z: 0 }; /* @TODO */
+  private static normalVectorOfPlane(center: Vector3D, yAngle: number, zAngle: number): Vector3D {
+    const referencePoint: Vector3D = {
+      x: center.x + Math.cos(zAngle) * -Math.cos(yAngle),
+      y: center.y + Math.sin(zAngle) * -Math.cos(yAngle),
+      z: center.z + Math.sin(yAngle)
+    };
+
+    return subtractPoints(referencePoint, center);
+  }
+
+  private static subtractPoints(point1: Vector3D, point2: Vector3D): Vector3D {
+    return {
+      x: point1.x - point2.x,
+      y: point1.y - point2.y,
+      z: point1.z - point2.z,
+    };
   }
 
   private static project3DPolygons(display: Display, polygons3D: Polygon3D[]): Polygon2D[] {
     return polygons3D.map((polygon3D: Polygon3D): Polygon2D => {
-      const focalLength: number = RenderingEngine.distance(display.center, display.focusPoint);
 
+      const horizontalPlaneNormal: Vector3D = RenderingEngine.normalVectorOfPlane(display.center, display.horizontalPlaneYAngle, display.horizontalPlaneZAngle);
+      const verticalPlaneNormal: Vector3D = RenderingEngine.normalVectorOfPlane(display.center, display.horizontalPlaneYAngle, display.horizontalPlaneZAngle + 90);
+      
+      const horizontalPlane: Coefficient3D = RenderingEngine.coefficientsOfPlane(horizontalPlaneNormal, display.center);
+      const verticalPlane: Coefficient3D = RenderingEngine.coefficientsOfPlane(verticalPlaneNormal, display.center);
+      
       const coordinates2D: Vector2D[] = polygon3D.coordinates.map((coordinate: Vector3D): Vector2D => {
         return {
-          x: focalLength * coordinate.x / coordinate.z,
-          y: focalLength * coordinate.y / coordinate.z,
+          x: RenderingEngine.distanceFromPointToPlane(coordinate, horizontalPlane),
+          y: RenderingEngine.distanceFromPointToPlane(coordinate, verticalPlane)
         };
       });
 
