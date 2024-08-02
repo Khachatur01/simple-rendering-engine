@@ -25,7 +25,7 @@ export class RenderingEngine {
     this.context = context;
 
     this.display = {
-      focalLength: 50,
+      focalLength: 300,
       center: { x: 0, y: 0, z: 0 },
       horizontalPlaneXAngle: 0,
       horizontalPlaneYAngle: 0,
@@ -43,16 +43,20 @@ export class RenderingEngine {
     this.renderScene();
   }
 
-  public setCameraAngles(x: number, y: number, z: number): void {
-    this.display.horizontalPlaneXAngle = x;
-    this.display.horizontalPlaneYAngle = y;
-    this.display.horizontalPlaneZAngle = z;
+  public changeCameraAngles(deltaX: number, deltaY: number, deltaZ: number): void {
+    this.display.horizontalPlaneXAngle += deltaX;
+    this.display.horizontalPlaneYAngle += deltaY;
+    this.display.horizontalPlaneZAngle += deltaZ;
+
+    this.display.horizontalPlaneXAngle = this.display.horizontalPlaneXAngle % 360;
+    this.display.horizontalPlaneYAngle = this.display.horizontalPlaneYAngle % 360;
+    this.display.horizontalPlaneZAngle = this.display.horizontalPlaneZAngle % 360;
 
     this.renderScene();
   }
 
-  public setFocalLength(focalLength: number): void {
-    this.display.focalLength = focalLength;
+  public changeFocalLength(focalLengthDelta: number): void {
+    this.display.focalLength += focalLengthDelta;
 
     this.renderScene();
   }
@@ -61,6 +65,44 @@ export class RenderingEngine {
     this.polygons3D.push(polygon3D);
 
     this.renderScene();
+  }
+
+  public create3DCube(position: Vector3D, size: Vector3D): Polygon3D[] {
+    const {x, y, z} = position;
+    const {length, width, height} = {width: size.x / 2, height: size.y / 2, length: size.z / 2};
+
+    const frontPlane: Polygon3D = {
+      coordinates: [
+        {x: x - length, y: y - width, z: z - height}, /* bottom left */
+        {x: x - length, y: y - width, z: z + height}, /* top left */
+        {x: x - length, y: y + width, z: z + height}, /* top right */
+        {x: x - length, y: y + width, z: z - height}, /* bottom right */
+      ]
+    };
+
+    const backPlane: Polygon3D = {
+      coordinates: [
+        {x: x + length, y: y - width, z: z - height}, /* bottom left */
+        {x: x + length, y: y - width, z: z + height}, /* top left */
+        {x: x + length, y: y + width, z: z + height}, /* top right */
+        {x: x + length, y: y + width, z: z - height}, /* bottom right */
+      ]
+    };
+
+    const polygons: Polygon3D[] = [frontPlane, backPlane];
+
+    for (let i = 0; i < 4; ++i) {
+      polygons.push(
+        {
+          coordinates: [
+            frontPlane.coordinates[i],
+            backPlane.coordinates[i],
+          ]
+        }
+      );
+    }
+
+    return polygons;
   }
 
   private renderScene(): void {
@@ -170,30 +212,39 @@ export class RenderingEngine {
   }
 
   private static project3DPolygons(display: Display, polygons3D: Polygon3D[]): Polygon2D[] {
+    let xyPlaneNormal: Vector3D = { x: 0, y: 0, z: 1 };
+    let yzPlaneNormal: Vector3D = { x: 1, y: 0, z: 0 };
+    let xzPlaneNormal: Vector3D = { x: 0, y: 1, z: 0 };
+
+    xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'x', display.horizontalPlaneXAngle);
+    xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'y', display.horizontalPlaneYAngle);
+
+    yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'y', display.horizontalPlaneYAngle);
+    yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'z', display.horizontalPlaneZAngle);
+
+    xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'x', display.horizontalPlaneXAngle);
+    xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'z', display.horizontalPlaneZAngle);
+
+    const xyPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(xyPlaneNormal, display.center);
+    const yzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(yzPlaneNormal, display.center);
+    const xzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(xzPlaneNormal, display.center);
+
     return polygons3D.map((polygon3D: Polygon3D): Polygon2D => {
-      let xyPlaneNormal: Vector3D = { x: 0, y: 0, z: 1 };
-      let yzPlaneNormal: Vector3D = { x: 1, y: 0, z: 0 };
-      let xzPlaneNormal: Vector3D = { x: 0, y: 1, z: 0 };
-
-      xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'x', display.horizontalPlaneXAngle);
-      xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'y', display.horizontalPlaneYAngle);
-
-      yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'y', display.horizontalPlaneYAngle);
-      yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'z', display.horizontalPlaneZAngle);
-
-      xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'x', display.horizontalPlaneXAngle);
-      xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'z', display.horizontalPlaneZAngle);
-
-      const xyPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(xyPlaneNormal, display.center);
-      const yzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(yzPlaneNormal, display.center);
-      const xzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(xzPlaneNormal, display.center);
-
       const coordinates2D: Vector2D[] = polygon3D.coordinates.map((coordinate: Vector3D): Vector2D => {
         const xDistance: number = RenderingEngine.distanceFromPointToPlane(coordinate, yzPlane);
+        const yDistance: number = RenderingEngine.distanceFromPointToPlane(coordinate, xzPlane);
+        const zDistance: number = RenderingEngine.distanceFromPointToPlane(coordinate, xyPlane);
+
+        if (xDistance === 0) {
+          return {
+            x: coordinate.y,
+            y: coordinate.z,
+          }
+        }
 
         return {
-          x: display.focalLength * RenderingEngine.distanceFromPointToPlane(coordinate, xzPlane) / xDistance,
-          y: display.focalLength * RenderingEngine.distanceFromPointToPlane(coordinate, xyPlane) / xDistance
+          x: display.focalLength * yDistance / xDistance,
+          y: display.focalLength * zDistance / xDistance
         };
       });
 

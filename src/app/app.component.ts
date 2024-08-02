@@ -2,6 +2,8 @@ import {AfterViewInit, Component, ElementRef, HostListener, ViewChild} from '@an
 import { RouterOutlet } from '@angular/router';
 import {RenderingEngine} from "./lib/rendering-engine";
 import {FormsModule} from "@angular/forms";
+import {Polygon} from "./lib/model/3D/polygon";
+import {Vector} from "./lib/model/2D/vector";
 
 @Component({
   selector: 'app-root',
@@ -11,19 +13,19 @@ import {FormsModule} from "@angular/forms";
   styleUrl: './app.component.css'
 })
 export class AppComponent implements AfterViewInit {
-  public xAngle: number = 0;
-  public yAngle: number = 0;
-  public zAngle: number = 0;
-  public focalLength: number = 0;
+  public width: number = 800;
+  public height: number = 800;
 
   private renderingEngine?: RenderingEngine;
+
+  private dragStartPosition?: Vector;
 
   @ViewChild("canvasElement")
   public canvasElement?: ElementRef<HTMLCanvasElement>;
 
   @HostListener('window:keydown', ['$event'])
   public onMove(event: KeyboardEvent): void {
-    const step: number = 20;
+    const step: number = 10;
     switch (event.key) {
       case "w":
         this.renderingEngine?.moveCamera({x: -step, y: 0, z: 0})
@@ -46,62 +48,50 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+  @HostListener('window:mousedown', ['$event'])
+  public onMouseDown(event: MouseEvent): void {
+    this.dragStartPosition = {
+      x: event.clientX,
+      y: event.clientY,
+    };
+  }
+
+  @HostListener('window:mousemove', ['$event'])
+  public onMouseMove(event: MouseEvent): void {
+    if (!this.dragStartPosition) {
+      return;
+    }
+
+    const step: number = 0.1;
+
+    this.renderingEngine?.changeCameraAngles(0, (event.clientY - this.dragStartPosition.y) * step, (event.clientX - this.dragStartPosition.x) * step);
+
+    this.dragStartPosition = {
+      x: event.clientX,
+      y: event.clientY,
+    };
+  }
+
+  @HostListener('window:mouseup', ['$event'])
+  public onMouseup(): void {
+    this.dragStartPosition = undefined;
+  }
+
+  @HostListener('window:wheel', ['$event'])
+  public onMouseWheel(event: WheelEvent): void {
+    const direction: 1 | -1 = event.deltaY >= 0 ? -1 : 1;
+
+    this.renderingEngine?.changeFocalLength(direction * 10);
+  }
+
   public ngAfterViewInit(): void {
     if (this.canvasElement?.nativeElement) {
       this.renderingEngine = new RenderingEngine(this.canvasElement.nativeElement);
 
-      this.renderingEngine.add3DPolygon({
-        coordinates: [
-          {x: 100, z: -200, y: -200}, /* bottom left */
-          {x: 100, y: -200, z: 200}, /* top left */
-          {x: 100, y: 200, z: 200}, /* top right */
-          {x: 100, y: 200, z: -200}, /* bottom right */
-        ]
-      });
-
-      this.renderingEngine.add3DPolygon({
-        coordinates: [
-          {x: 200, y: -200, z: -200}, /* bottom left */
-          {x: 200, y: -200, z: 200}, /* top left */
-          {x: 200, y: 200, z: 200}, /* top right */
-          {x: 200, y: 200, z: -200}, /* bottom right */
-        ]
-      });
-
-      this.renderingEngine.add3DPolygon({
-        coordinates: [
-          {x: 100, y: -200, z: -200},
-          {x: 200, y: -200, z: -200},
-          {x: 200, y: -200, z: 200},
-          {x: 100, y: -200, z: 200},
-        ]
-      });
-
-      this.renderingEngine.add3DPolygon({
-        coordinates: [
-          {x: 100, y: -200, z: 200},
-          {x: 100, y: 200, z: 200},
-          {x: 200, y: 200, z: 200},
-          {x: 200, y: -200, z: 200},
-        ]
-      });
-
-      this.renderingEngine.add3DPolygon({
-        coordinates: [
-          {x: 200, y: 200, z: 200},
-          {x: 100, y: 200, z: 200},
-          {x: 100, y: 200, z: -200},
-          {x: 200, y: 200, z: -200},
-        ]
-      });
+      this.renderingEngine.create3DCube({x: 300, y: 0, z: 0}, {x: 100, y: 100, z: 100})
+        .forEach((polygon: Polygon): void => {
+          this.renderingEngine?.add3DPolygon(polygon);
+        });
     }
-  }
-
-  public onAngleChange(): void {
-    this.renderingEngine?.setCameraAngles(this.xAngle, this.yAngle, this.zAngle);
-  }
-
-  public onFocalLengthChange(): void {
-    this.renderingEngine?.setFocalLength(this.focalLength);
   }
 }

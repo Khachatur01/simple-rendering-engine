@@ -1,9 +1,3 @@
 <router-outlet />
 
-x <input type="range" [(ngModel)]="xAngle" (ngModelChange)="onAngleChange()" min="-180" max="180" step="1"/>
-y <input type="range" [(ngModel)]="yAngle" (ngModelChange)="onAngleChange()" min="-180" max="180" step="1"/>
-z <input type="range" [(ngModel)]="zAngle" (ngModelChange)="onAngleChange()" min="-180" max="180" step="1"/>
-fl <input type="range" [(ngModel)]="focalLength" (ngModelChange)="onFocalLengthChange()" value="50" min="0" max="500" step="1"/>
-<br>
-
-<canvas #canvasElement width="800px" height="800px" style="border: 1px solid black"></canvas>
+<canvas #canvasElement [width]="width" [height]="height" style="border: 1px solid black"></canvas>
