@@ -117,19 +117,6 @@ export class RenderingEngine {
     return numerator / denominator;
   }
 
-  private static normalVectorOfPlane(center: Vector3D, angle1: number, angle2: number): Vector3D {
-    const angle1Radians: number = (Math.PI * angle1) / 180;
-    const angle2Radians: number = (Math.PI * angle2) / 180;
-
-    const referencePoint: Vector3D = {
-      x: center.x + Math.cos(angle2Radians) * (-Math.cos(angle1Radians)),
-      y: center.y + Math.sin(angle2Radians) * (-Math.cos(angle1Radians)),
-      z: center.z + Math.sin(angle1Radians)
-    };
-
-    return RenderingEngine.subtractPoints(referencePoint, center);
-  }
-
   private static rotateVector({ x, y, z }: Vector3D, axis: 'x' | 'y' | 'z', angle: number): Vector3D {
     const angleRadian: number = (Math.PI * angle) / 180;
 
@@ -184,29 +171,29 @@ export class RenderingEngine {
 
   private static project3DPolygons(display: Display, polygons3D: Polygon3D[]): Polygon2D[] {
     return polygons3D.map((polygon3D: Polygon3D): Polygon2D => {
-      let xzPlaneNormal: Vector3D = { x: 0, y: 1, z: 0 };
-      let yzPlaneNormal: Vector3D = { x: 1, y: 0, z: 0 };
       let xyPlaneNormal: Vector3D = { x: 0, y: 0, z: 1 };
-
-      xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'x', display.horizontalPlaneXAngle);
-      xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'z', display.horizontalPlaneZAngle);
-
-      yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'y', display.horizontalPlaneYAngle);
-      yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'z', display.horizontalPlaneZAngle);
+      let yzPlaneNormal: Vector3D = { x: 1, y: 0, z: 0 };
+      let xzPlaneNormal: Vector3D = { x: 0, y: 1, z: 0 };
 
       xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'x', display.horizontalPlaneXAngle);
       xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'y', display.horizontalPlaneYAngle);
 
-      const xzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(xzPlaneNormal, display.center);
-      const yzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(yzPlaneNormal, display.center);
+      yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'y', display.horizontalPlaneYAngle);
+      yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'z', display.horizontalPlaneZAngle);
+
+      xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'x', display.horizontalPlaneXAngle);
+      xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'z', display.horizontalPlaneZAngle);
+
       const xyPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(xyPlaneNormal, display.center);
+      const yzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(yzPlaneNormal, display.center);
+      const xzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(xzPlaneNormal, display.center);
 
       const coordinates2D: Vector2D[] = polygon3D.coordinates.map((coordinate: Vector3D): Vector2D => {
-        const zDistance: number = RenderingEngine.distanceFromPointToPlane(coordinate, xyPlane);
+        const xDistance: number = RenderingEngine.distanceFromPointToPlane(coordinate, yzPlane);
 
         return {
-          x: display.focalLength * RenderingEngine.distanceFromPointToPlane(coordinate, yzPlane) / zDistance,
-          y: display.focalLength * RenderingEngine.distanceFromPointToPlane(coordinate, xzPlane) / zDistance
+          x: display.focalLength * RenderingEngine.distanceFromPointToPlane(coordinate, xzPlane) / xDistance,
+          y: display.focalLength * RenderingEngine.distanceFromPointToPlane(coordinate, xyPlane) / xDistance
         };
       });
 

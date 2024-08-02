@@ -26,22 +26,22 @@ export class AppComponent implements AfterViewInit {
     const step: number = 20;
     switch (event.key) {
       case "w":
-        this.renderingEngine?.moveCamera({x: 0, y: 0, z: -step})
-        break;
-      case "s":
-        this.renderingEngine?.moveCamera({x: 0, y: 0, z: +step})
-        break;
-      case "a":
         this.renderingEngine?.moveCamera({x: -step, y: 0, z: 0})
         break;
-      case "d":
+      case "s":
         this.renderingEngine?.moveCamera({x: step, y: 0, z: 0})
         break;
-      case "ArrowUp":
+      case "a":
+        this.renderingEngine?.moveCamera({x: 0, y: -step, z: 0})
+        break;
+      case "d":
         this.renderingEngine?.moveCamera({x: 0, y: step, z: 0})
         break;
+      case "ArrowUp":
+        this.renderingEngine?.moveCamera({x: 0, y: 0, z: step})
+        break;
       case "ArrowDown":
-        this.renderingEngine?.moveCamera({x: 0, y: -step, z: 0})
+        this.renderingEngine?.moveCamera({x: 0, y: 0, z: -step})
         break;
     }
   }
@@ -50,65 +50,48 @@ export class AppComponent implements AfterViewInit {
     if (this.canvasElement?.nativeElement) {
       this.renderingEngine = new RenderingEngine(this.canvasElement.nativeElement);
 
-      // this.renderingEngine.add3DPolygon({
-      //   coordinates: [
-      //     {x: -200, y: -200, z: 100},
-      //     {x: 0, y: 200, z: 100},
-      //     {x: 200, y: -200, z: 100},
-      //   ]
-      // });
-
-      // this.renderingEngine.add3DPolygon({
-      //   coordinates: [
-      //     {x: -200, y: -200, z: 100},
-      //     {x: -200, y: 200, z: 100},
-      //     {x: 200, y: 200, z: 100},
-      //     {x: 200, y: -200, z: 100},
-      //   ]
-      // });
-
       this.renderingEngine.add3DPolygon({
         coordinates: [
-          {x: -200, y: -200, z: 100}, /* bottom left */
-          {x: -200, y: 200, z: 100}, /* top left */
-          {x: 200, y: 200, z: 100}, /* top right */
-          {x: 200, y: -200, z: 100}, /* bottom right */
+          {x: 100, z: -200, y: -200}, /* bottom left */
+          {x: 100, y: -200, z: 200}, /* top left */
+          {x: 100, y: 200, z: 200}, /* top right */
+          {x: 100, y: 200, z: -200}, /* bottom right */
         ]
       });
 
       this.renderingEngine.add3DPolygon({
         coordinates: [
-          {x: -200, y: -200, z: 200}, /* bottom left */
-          {x: -200, y: 200, z: 200}, /* top left */
+          {x: 200, y: -200, z: -200}, /* bottom left */
+          {x: 200, y: -200, z: 200}, /* top left */
           {x: 200, y: 200, z: 200}, /* top right */
-          {x: 200, y: -200, z: 200}, /* bottom right */
+          {x: 200, y: 200, z: -200}, /* bottom right */
         ]
       });
 
       this.renderingEngine.add3DPolygon({
         coordinates: [
-          {x: -200, y: -200, z: 100},
-          {x: -200, y: -200, z: 200},
-          {x: -200, y: 200, z: 200},
-          {x: -200, y: 200, z: 100},
-        ]
-      });
-
-      this.renderingEngine.add3DPolygon({
-        coordinates: [
-          {x: -200, y: 200, z: 100},
-          {x: 200, y: 200, z: 100},
-          {x: 200, y: 200, z: 200},
-          {x: -200, y: 200, z: 200},
-        ]
-      });
-
-      this.renderingEngine.add3DPolygon({
-        coordinates: [
-          {x: 200, y: 200, z: 200},
-          {x: 200, y: 200, z: 100},
-          {x: 200, y: -200, z: 100},
+          {x: 100, y: -200, z: -200},
+          {x: 200, y: -200, z: -200},
           {x: 200, y: -200, z: 200},
+          {x: 100, y: -200, z: 200},
+        ]
+      });
+
+      this.renderingEngine.add3DPolygon({
+        coordinates: [
+          {x: 100, y: -200, z: 200},
+          {x: 100, y: 200, z: 200},
+          {x: 200, y: 200, z: 200},
+          {x: 200, y: -200, z: 200},
+        ]
+      });
+
+      this.renderingEngine.add3DPolygon({
+        coordinates: [
+          {x: 200, y: 200, z: 200},
+          {x: 100, y: 200, z: 200},
+          {x: 100, y: 200, z: -200},
+          {x: 200, y: 200, z: -200},
         ]
       });
     }
