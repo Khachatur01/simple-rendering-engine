@@ -185,13 +185,16 @@ export class RenderingEngine {
   private static project3DPolygons(display: Display, polygons3D: Polygon3D[]): Polygon2D[] {
     return polygons3D.map((polygon3D: Polygon3D): Polygon2D => {
       let xzPlaneNormal: Vector3D = { x: 0, y: 1, z: 0 };
+      let yzPlaneNormal: Vector3D = { x: 1, y: 0, z: 0 };
+      let xyPlaneNormal: Vector3D = { x: 0, y: 0, z: 1 };
+
       xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'x', display.horizontalPlaneXAngle);
       xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'z', display.horizontalPlaneZAngle);
 
-      let yzPlaneNormal: Vector3D = RenderingEngine.rotateVector(xzPlaneNormal, 'z', 90);
       yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'y', display.horizontalPlaneYAngle);
+      yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'z', display.horizontalPlaneZAngle);
 
-      let xyPlaneNormal: Vector3D = RenderingEngine.rotateVector(xzPlaneNormal, 'x', 90);
+      xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'x', display.horizontalPlaneXAngle);
       xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'y', display.horizontalPlaneYAngle);
 
       const xzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(xzPlaneNormal, display.center);
