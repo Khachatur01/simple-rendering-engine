@@ -28,22 +28,22 @@ export class AppComponent implements AfterViewInit {
     const step: number = 10;
     switch (event.key) {
       case "w":
-        this.renderingEngine?.moveCamera({x: -step, y: 0, z: 0})
+        this.renderingEngine?.moveCamera({x: -step, y: 0, z: 0});
         break;
       case "s":
-        this.renderingEngine?.moveCamera({x: step, y: 0, z: 0})
+        this.renderingEngine?.moveCamera({x: step, y: 0, z: 0});
         break;
       case "a":
-        this.renderingEngine?.moveCamera({x: 0, y: -step, z: 0})
+        this.renderingEngine?.moveCamera({x: 0, y: step, z: 0});
         break;
       case "d":
-        this.renderingEngine?.moveCamera({x: 0, y: step, z: 0})
+        this.renderingEngine?.moveCamera({x: 0, y: -step, z: 0});
         break;
       case "ArrowUp":
-        this.renderingEngine?.moveCamera({x: 0, y: 0, z: step})
+        this.renderingEngine?.moveCamera({x: 0, y: 0, z: step});
         break;
       case "ArrowDown":
-        this.renderingEngine?.moveCamera({x: 0, y: 0, z: -step})
+        this.renderingEngine?.moveCamera({x: 0, y: 0, z: -step});
         break;
     }
   }
@@ -88,7 +88,12 @@ export class AppComponent implements AfterViewInit {
     if (this.canvasElement?.nativeElement) {
       this.renderingEngine = new RenderingEngine(this.canvasElement.nativeElement, this.width, this.height);
 
-      this.renderingEngine.create3DCube({x: 300, y: 0, z: 0}, {x: 100, y: 100, z: 100})
+      RenderingEngine.create3DCube({x: 300, y: -100, z: 0}, {x: 100, y: 100, z: 100})
+        .forEach((polygon: Polygon): void => {
+          this.renderingEngine?.add3DPolygon(polygon);
+        });
+
+      RenderingEngine.create3DCube({x: 500, y: 100, z: 0}, {x: 100, y: 100, z: 100})
         .forEach((polygon: Polygon): void => {
           this.renderingEngine?.add3DPolygon(polygon);
         });

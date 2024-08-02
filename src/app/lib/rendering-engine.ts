@@ -25,7 +25,7 @@ export class RenderingEngine {
     this.context = context;
 
     this.display = {
-      focalLength: 300,
+      focalLength: 800,
       center: { x: 0, y: 0, z: 0 },
       horizontalPlaneXAngle: 0,
       horizontalPlaneYAngle: 0,
@@ -36,6 +36,10 @@ export class RenderingEngine {
   }
 
   public moveCamera(delta: Vector3D): void {
+    delta = RenderingEngine.rotateVector(delta, 'x', this.display.horizontalPlaneXAngle);
+    delta = RenderingEngine.rotateVector(delta, 'y', this.display.horizontalPlaneYAngle);
+    delta = RenderingEngine.rotateVector(delta, 'z', this.display.horizontalPlaneZAngle);
+
     this.display.center.x += delta.x;
     this.display.center.y += delta.y;
     this.display.center.z += delta.z;
@@ -67,7 +71,7 @@ export class RenderingEngine {
     this.renderScene();
   }
 
-  public create3DCube(position: Vector3D, size: Vector3D): Polygon3D[] {
+  public static create3DCube(position: Vector3D, size: Vector3D): Polygon3D[] {
     const {x, y, z} = position;
     const {length, width, height} = {width: size.x / 2, height: size.y / 2, length: size.z / 2};
 
