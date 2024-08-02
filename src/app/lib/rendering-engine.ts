@@ -222,12 +222,15 @@ export class RenderingEngine {
 
     yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'y', display.pitchAngle);
     yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'z', display.yawAngle);
+    yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'x', display.rollAngle);
 
     xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'x', display.rollAngle);
     xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'z', display.yawAngle);
+    xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'y', display.pitchAngle);
 
     xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'x', display.rollAngle);
     xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'y', display.pitchAngle);
+    xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'z', display.yawAngle);
 
     const xyPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(xyPlaneNormal, display.center);
     const yzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(yzPlaneNormal, display.center);
