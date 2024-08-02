@@ -13,7 +13,7 @@ export class RenderingEngine {
 
   private readonly polygons3D: Polygon3D[] = [];
 
-  public constructor(canvas: HTMLCanvasElement) {
+  public constructor(canvas: HTMLCanvasElement, width: number, height: number) {
     this.canvas = canvas;
 
     const context: CanvasRenderingContext2D | null = this.canvas.getContext('2d');
@@ -30,8 +30,8 @@ export class RenderingEngine {
       horizontalPlaneXAngle: 0,
       horizontalPlaneYAngle: 0,
       horizontalPlaneZAngle: 0,
-      width: this.canvas.width,
-      height: this.canvas.height,
+      width: width,
+      height: height,
     }
   }
 
