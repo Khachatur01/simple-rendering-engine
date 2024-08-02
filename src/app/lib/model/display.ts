@@ -3,9 +3,9 @@ import {Vector as Vector3D} from "./3D/vector";
 export interface Display {
   focalLength: number;
   center: Vector3D;
-  horizontalPlaneXAngle: number; /* Yaw axis */
-  horizontalPlaneYAngle: number; /* Pitch axis */
-  horizontalPlaneZAngle: number; /* Roll axis */
+  rollAngle: number; /* x axis */
+  pitchAngle: number; /* y axis */
+  yawAngle: number; /* z axis */
   width: number;
   height: number;
 }

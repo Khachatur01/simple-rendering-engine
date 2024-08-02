@@ -64,7 +64,11 @@ export class AppComponent implements AfterViewInit {
 
     const step: number = 0.1;
 
-    this.renderingEngine?.changeCameraAngles(0, (event.clientY - this.dragStartPosition.y) * step, (event.clientX - this.dragStartPosition.x) * step);
+    this.renderingEngine?.changeCameraAngles({
+      x: 0,
+      y: (event.clientY - this.dragStartPosition.y) * step,
+      z: (event.clientX - this.dragStartPosition.x) * step
+    });
 
     this.dragStartPosition = {
       x: event.clientX,

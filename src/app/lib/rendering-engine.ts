@@ -27,18 +27,18 @@ export class RenderingEngine {
     this.display = {
       focalLength: 800,
       center: { x: 0, y: 0, z: 0 },
-      horizontalPlaneXAngle: 0,
-      horizontalPlaneYAngle: 0,
-      horizontalPlaneZAngle: 0,
+      rollAngle: 0,
+      pitchAngle: 0,
+      yawAngle: 0,
       width: width,
       height: height,
     }
   }
 
   public moveCamera(delta: Vector3D): void {
-    delta = RenderingEngine.rotateVector(delta, 'x', this.display.horizontalPlaneXAngle);
-    delta = RenderingEngine.rotateVector(delta, 'y', this.display.horizontalPlaneYAngle);
-    delta = RenderingEngine.rotateVector(delta, 'z', this.display.horizontalPlaneZAngle);
+    delta = RenderingEngine.rotateVector(delta, 'x', this.display.rollAngle);
+    delta = RenderingEngine.rotateVector(delta, 'y', this.display.pitchAngle);
+    delta = RenderingEngine.rotateVector(delta, 'z', this.display.yawAngle);
 
     this.display.center.x += delta.x;
     this.display.center.y += delta.y;
@@ -47,14 +47,14 @@ export class RenderingEngine {
     this.renderScene();
   }
 
-  public changeCameraAngles(deltaX: number, deltaY: number, deltaZ: number): void {
-    this.display.horizontalPlaneXAngle += deltaX;
-    this.display.horizontalPlaneYAngle += deltaY;
-    this.display.horizontalPlaneZAngle += deltaZ;
+  public changeCameraAngles(delta: Vector3D): void {
+    this.display.rollAngle += delta.x;
+    this.display.pitchAngle += delta.y;
+    this.display.yawAngle += delta.z;
 
-    this.display.horizontalPlaneXAngle = this.display.horizontalPlaneXAngle % 360;
-    this.display.horizontalPlaneYAngle = this.display.horizontalPlaneYAngle % 360;
-    this.display.horizontalPlaneZAngle = this.display.horizontalPlaneZAngle % 360;
+    this.display.rollAngle = this.display.rollAngle % 360;
+    this.display.pitchAngle = this.display.pitchAngle % 360;
+    this.display.yawAngle = this.display.yawAngle % 360;
 
     this.renderScene();
   }
@@ -220,14 +220,14 @@ export class RenderingEngine {
     let yzPlaneNormal: Vector3D = { x: 1, y: 0, z: 0 };
     let xzPlaneNormal: Vector3D = { x: 0, y: 1, z: 0 };
 
-    xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'x', display.horizontalPlaneXAngle);
-    xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'y', display.horizontalPlaneYAngle);
+    xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'x', display.rollAngle);
+    xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'y', display.pitchAngle);
 
-    yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'y', display.horizontalPlaneYAngle);
-    yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'z', display.horizontalPlaneZAngle);
+    yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'y', display.pitchAngle);
+    yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'z', display.yawAngle);
 
-    xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'x', display.horizontalPlaneXAngle);
-    xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'z', display.horizontalPlaneZAngle);
+    xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'x', display.rollAngle);
+    xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'z', display.yawAngle);
 
     const xyPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(xyPlaneNormal, display.center);
     const yzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(yzPlaneNormal, display.center);
