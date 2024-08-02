@@ -216,18 +216,18 @@ export class RenderingEngine {
   }
 
   private static project3DPolygons(display: Display, polygons3D: Polygon3D[]): Polygon2D[] {
-    let xyPlaneNormal: Vector3D = { x: 0, y: 0, z: 1 };
     let yzPlaneNormal: Vector3D = { x: 1, y: 0, z: 0 };
     let xzPlaneNormal: Vector3D = { x: 0, y: 1, z: 0 };
-
-    xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'x', display.rollAngle);
-    xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'y', display.pitchAngle);
+    let xyPlaneNormal: Vector3D = { x: 0, y: 0, z: 1 };
 
     yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'y', display.pitchAngle);
     yzPlaneNormal = RenderingEngine.rotateVector(yzPlaneNormal, 'z', display.yawAngle);
 
     xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'x', display.rollAngle);
     xzPlaneNormal = RenderingEngine.rotateVector(xzPlaneNormal, 'z', display.yawAngle);
+
+    xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'x', display.rollAngle);
+    xyPlaneNormal = RenderingEngine.rotateVector(xyPlaneNormal, 'y', display.pitchAngle);
 
     const xyPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(xyPlaneNormal, display.center);
     const yzPlane: Coefficients3D = RenderingEngine.coefficientsOfPlane(yzPlaneNormal, display.center);
