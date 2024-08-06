@@ -25,7 +25,7 @@ export class RenderingEngine {
     this.context = context;
 
     this.display = {
-      focalLength: 800,
+      focalLength: 2 * width,
       center: { x: 0, y: 0, z: 0 },
       rollAngle: 0,
       pitchAngle: 0,
@@ -57,6 +57,8 @@ export class RenderingEngine {
     this.display.yawAngle = this.display.yawAngle % 360;
 
     this.renderScene();
+
+    console.log(this.display)
   }
 
   public changeFocalLength(focalLengthDelta: number): void {
@@ -113,6 +115,7 @@ export class RenderingEngine {
     const polygons2D: Polygon2D[] = RenderingEngine.project3DPolygons(this.display, this.polygons3D);
 
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
     this.render2DPolygons(polygons2D);
   }
 
@@ -143,7 +146,7 @@ export class RenderingEngine {
     };
   }
 
-  private static coefficientsOfPlane(normalVector: Vector3D, { x, y, z }: Vector3D): Coefficients3D {
+  private static coefficientsOfPlane(normalVector: Vector3D, point: Vector3D): Coefficients3D {
     const a: number = normalVector.x;
     const b: number = normalVector.y;
     const c: number = normalVector.z;
@@ -152,7 +155,7 @@ export class RenderingEngine {
       a,
       b,
       c,
-      d: a*x + b*y + c*z,
+      d: a*point.x + b*point.y + c*point.z,
     };
   }
 
